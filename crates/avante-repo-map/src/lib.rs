@@ -65,6 +65,7 @@ fn get_ts_language(language: &str) -> Option<LanguageFn> {
         "scala" => Some(tree_sitter_scala::LANGUAGE),
         "elixir" => Some(tree_sitter_elixir::LANGUAGE),
         "csharp" => Some(tree_sitter_c_sharp::LANGUAGE),
+        "dart" => Some(tree_sitter_dart::language()),
         _ => None,
     }
 }
@@ -82,6 +83,7 @@ const RUBY_QUERY: &str = include_str!("../queries/tree-sitter-ruby-defs.scm");
 const SCALA_QUERY: &str = include_str!("../queries/tree-sitter-scala-defs.scm");
 const ELIXIR_QUERY: &str = include_str!("../queries/tree-sitter-elixir-defs.scm");
 const CSHARP_QUERY: &str = include_str!("../queries/tree-sitter-c-sharp-defs.scm");
+const DART_QUERY: &str = include_str!("../queries/tree-sitter-dart-defs.scm");
 
 fn get_definitions_query(language: &str) -> Result<Query, String> {
     let ts_language = get_ts_language(language);
@@ -103,6 +105,7 @@ fn get_definitions_query(language: &str) -> Result<Query, String> {
         "scala" => SCALA_QUERY,
         "elixir" => ELIXIR_QUERY,
         "csharp" => CSHARP_QUERY,
+        "dart" => DART_QUERY,
         _ => return Err(format!("Unsupported language: {language}")),
     };
     let query = Query::new(&ts_language.into(), contents)
@@ -1799,6 +1802,47 @@ mod tests {
         let stringified = stringify_definitions(&definitions);
         println!("{stringified}");
         let expected = "class MyInnerClass{func MyInnerClass(InnerClassDependency m) -> MyInnerClass;};class MyInnerRecord{func MyInnerRecord(int a) -> MyInnerRecord;};class TestClass{func TestClass(TestDependency m) -> TestClass;func TestClass() -> TestClass;func TestMethod(int a, int b) -> void;func TestMethod(int a, int b, int c) -> int;var TestProperty:int;var TestField:string;};class TestRecord{func TestRecord(int a, int b) -> TestRecord;};enum TestEnum{Value1;Value2;};";
+        assert_eq!(stringified, expected);
+    }
+
+    #[test]
+    fn test_dart() {
+        let source = r#"
+        class TestClass {
+            final String testField;
+            static const int TEST_CONST = 42;
+
+            TestClass(this.testField);
+
+            void testMethod(int a, int b) {
+                var innerVar = 1;
+                return a + b;
+            }
+
+            String get testGetter => testField;
+
+            set testSetter(String value) {
+                testField = value;
+            }
+        }
+
+        enum TestEnum {
+            value1,
+            value2,
+            value3
+        }
+
+        void testFunction(String param) {
+            print(param);
+        }
+
+        final globalVar = 'test';
+        "#;
+
+        let definitions = extract_definitions("dart", source).unwrap();
+        let stringified = stringify_definitions(&definitions);
+        println!("{stringified}");
+        let expected = "var globalVar;func testFunction(String param) -> void;class TestClass{func TestClass(this.testField) -> void;func testMethod(int a, int b) -> void;func testGetter() -> String;func testSetter(String value) -> void;var testField:String;var TEST_CONST:int;};enum TestEnum{value1;value2;value3;};";
         assert_eq!(stringified, expected);
     }
 

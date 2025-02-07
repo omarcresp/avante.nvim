@@ -30,6 +30,7 @@ tree-sitter-zig = "1.0.2"
 tree-sitter-scala = "0.23"
 tree-sitter-elixir = "0.3.1"
 tree-sitter-c-sharp = "0.23"
+tree-sitter-dart = "0.0.1"
 
 [lints]
 workspace = true
