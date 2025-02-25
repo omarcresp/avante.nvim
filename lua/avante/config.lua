@@ -509,6 +509,8 @@ M.BASE_PROVIDER_KEYS = {
   "allow_insecure",
   "api_key_name",
   "timeout",
+  "thinking",
+  "thinkingBudget",
   -- internal
   "local",
   "_shellenv",

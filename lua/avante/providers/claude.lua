@@ -235,15 +235,14 @@ function M.parse_curl_args(provider, prompt_opts)
     end
   end
 
-    -- TODO: thinking should only be applied if claude-3-7 otherwise we should ignore to avoid api error
-  if provider_conf.thinking then
+  if provider_conf.thinking and provider_conf.model:match("claude%-3%-7") then
     -- TODO: parse messages must be updated to support tools with thinking in claude 3-7
     tools = {}
 
     request_body.thinking = {
       type = "enabled",
       -- TODO: this param is required if thinking = true. So it must be well implemented in avante config api
-      budget_tokens = provider_conf.thinkingBudget,
+      budget_tokens = provider_conf.thinkingBudget or 5000,
     }
   end
 
