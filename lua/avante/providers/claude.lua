@@ -120,6 +120,9 @@ function M.parse_messages(opts)
     end
   end
 
+  print("messages:")
+  print(vim.inspect(messages))
+
   return messages
 end
 
