@@ -184,15 +184,19 @@ function PromptInput:show_shortcuts_hints()
   api.nvim_buf_set_lines(buf, 0, -1, false, { display_text })
   vim.api.nvim_buf_add_highlight(buf, 0, "AvantePopupHint", 0, 0, -1)
 
-  local width = fn.strdisplaywidth(display_text)
+  local max_win_width = api.nvim_win_get_width(self.winid)
+  local max_win_height = api.nvim_win_get_height(self.winid)
+  local width = math.min(fn.strdisplaywidth(display_text), max_win_width)
+  local row = math.min(api.nvim_buf_line_count(self.bufnr), max_win_height - 1)
+  local col = math.max(max_win_width - width, 0)
 
   local opts = {
     relative = "win",
     win = self.winid,
     width = width,
     height = 1,
-    row = math.min(buf_height, win_height),
-    col = math.max(win_width - width, 0),
+    row = row,
+    col = col,
     style = "minimal",
     border = "none",
     focusable = false,
